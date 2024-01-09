@@ -17,6 +17,7 @@ def is_safe(board, row, col):
             return False
     return True
 
+
 def solve_nqueens(board, row, n):
     """
     Solve the N Queens problem using backtracking
@@ -29,6 +30,7 @@ def solve_nqueens(board, row, n):
         if is_safe(board, row, col):
             board[row] = col
             solve_nqueens(board, row + 1, n)
+
 
 def nqueens(n):
     """
