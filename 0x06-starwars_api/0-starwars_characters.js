@@ -7,45 +7,44 @@
  */
 
 
-const request = require('request');
+const util = require('util');
+const request = util.promisify(require('request'));
 
-const movieId = process.argv[2];
+const argv = process.argv;
+const urlFilm = 'https://swapi-api.hbtn.io/api/films/';
+const urlMovie = `${urlFilm}${argv[2]}/`;
 
-if (!movieId) {
-  console.error('Usage: ./0-starwars_characters.js <Movie ID>');
-  process.exit(1);
+async function fetchData(url) {
+  try {
+    const response = await request(url);
+    return JSON.parse(response.body);
+  } catch (error) {
+    throw error;
+  }
 }
 
-const apiUrl = `https://swapi.dev/api/films/${movieId}/`;
-
-request(apiUrl, (error, response, body) => {
-  if (error) {
-    console.error('Error:', error);
-    process.exit(1);
+async function CharRequest(idx, characters, limit) {
+  try {
+    if (idx < limit) {
+      const character = await fetchData(characters[idx]);
+      console.log(character.name);
+      await CharRequest(idx + 1, characters, limit);
+    }
+  } catch (error) {
+    console.error('error:', error);
   }
+}
 
-  if (response.statusCode !== 200) {
-    console.error('Error:', response.statusCode, response.statusMessage);
-    process.exit(1);
+(async () => {
+  try {
+    const movieData = await fetchData(urlMovie);
+    const characters = movieData.characters;
+
+    if (characters && characters.length > 0) {
+      const limit = characters.length;
+      await CharRequest(0, characters, limit);
+    }
+  } catch (error) {
+    console.log(error);
   }
-
-  const filmData = JSON.parse(body);
-
-  // Display characters in the same order as the "characters" list in the /films/ endpoint
-  filmData.characters.forEach((characterUrl) => {
-    request(characterUrl, (characterError, characterResponse, characterBody) => {
-      if (characterError) {
-        console.error('Error:', characterError);
-        process.exit(1);
-      }
-
-      if (characterResponse.statusCode !== 200) {
-        console.error('Error:', characterResponse.statusCode, characterResponse.statusMessage);
-        process.exit(1);
-      }
-
-      const characterData = JSON.parse(characterBody);
-      console.log(characterData.name);
-    });
-  });
-});
+})();
