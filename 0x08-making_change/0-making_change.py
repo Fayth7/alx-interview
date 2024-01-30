@@ -4,25 +4,28 @@
 
 
 def makeChange(coins, total):
-     """Determines the fewest number of coins needed to meet a given
-    amount total
-    """
-     temp_value = 0
-    coins.sort(reverse=True)
+    def helper(target, memo):
+        if target < 0:
+            return float('inf')
+        if target == 0:
+            return 0
+        if target in memo:
+            return memo[target]
 
-    if total < 0:
+        min_coins = float('inf')
+        for coin in coins:
+            min_coins = min(min_coins, 1 + helper(target - coin, memo))
+
+        memo[target] = min_coins
+        return min_coins
+
+    if total <= 0:
         return 0
 
-    for coin in coins:
-        if total % coin <= total:
-            temp_value += total // coin
-            total = total % coin
-
-    return temp_value if total == 0 else -1
+    result = helper(total, {})
+    return result if result != float('inf') else -1
 
 
-if __name__ == '__main__':
-
-    print(makeChange([1, 2, 25], 37))
-
-    print(makeChange([1256, 54, 48, 16, 102], 1453))
+# Test cases
+print(makeChange([1, 2, 25], 37))  # Output: 7
+print(makeChange([1256, 54, 48, 16, 102], 1453))  # Output: -1
