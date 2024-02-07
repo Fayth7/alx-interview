@@ -1,34 +1,36 @@
 #!/usr/bin/python3
 
-""" Function to find perimiter of an island """
-
+""" Function to find perimeter of an island """
 
 def island_perimeter(grid):
     """
     Input: List of Lists
     Returns: Perimeter of the island
     """
+    def is_valid(x, y):
+        return 0 <= x < row and 0 <= y < col
 
+    count = 0
+    row, col = len(grid), len(grid[0]) if grid else 0
 
-def is_valid(x, y):
-    return 0 <= x < len(grid) and 0 <= y < len(grid[0])
+    for i in range(row):
+        for j in range(col):
+            if grid[i][j]:
+                count += 4
 
+                neighbors = [(i - 1, j), (i, j - 1), (i, j + 1), (i + 1, j)]
+                count -= sum(1 for x, y in neighbors if is_valid(x, y) and grid[x][y])
 
-def count_perimeter(x, y):
-    perimeter = 0
+    return count
 
+# Example usage:
+grid = [
+    [0, 1, 0, 0],
+    [1, 1, 1, 0],
+    [0, 1, 0, 0],
+    [1, 1, 0, 0]
+]
 
-directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-for dx, dy in directions:
-    new_x, new_y = x + dx, y + dy
-    if is_valid(new_x, new_y) and not grid[new_x][new_y]:
-        perimeter += 4
-return perimeter
+result = island_perimeter(grid)
+print(result)
 
-    perimeter = 0
-for i in range(len(grid)):
-    for j in range(len(grid[0])):
-        if grid[i][j]:
-            perimeter += count_perimeter(i, j)
-
-return perimeter
